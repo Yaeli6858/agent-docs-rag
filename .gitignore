@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Environment variables (SECURITY!)
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# LlamaIndex / Vector DB local cache
+storage/
+
+*.pyc
