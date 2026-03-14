@@ -10,11 +10,11 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 load_dotenv()
 
 # ייבוא השלבים שיצרנו
-import step1_loading as s1
-import step2_chunking as s2
-import step3_embedding as s3
-import step4_indexing as s4
-import step5_storage as s5
+from data_pipeline import step1_loading as s1
+from data_pipeline import step2_chunking as s2
+from data_pipeline import step3_embedding as s3
+from data_pipeline import step4_indexing as s4
+from data_pipeline import step5_storage as s5
 
 def run():
     print("=== Starting RAG Pipeline ===")
