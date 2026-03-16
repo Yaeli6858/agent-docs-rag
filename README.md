@@ -59,6 +59,23 @@ The system is built on a modular, **Event-Driven Architecture** using LlamaIndex
    git clone [https://github.com/Yaeli6858/agent-docs-rag.git](https://github.com/Yaeli6858/agent-docs-rag.git)
    cd agent-docs-rag
 
+graph TD
+    A[User Query] --> B{Smart Router}
+    
+    %% נתיב מובנה
+    B -- "Structured" --> C[Extract from JSON]
+    C --> D[Response Synthesis]
+    
+    %% נתיב סמנטי
+    B -- "Semantic" --> E[Workflow: StartEvent]
+    E --> F[Step: Retrieve from Pinecone]
+    F --> G[Step: Validate Context]
+    G -- "Valid" --> H[Step: Synthesize Response]
+    G -- "Invalid" --> I[Retry / Error]
+    H --> D
+    
+    D --> J[Gradio UI Output]
+    
 
 Install dependencies:Bashpip install -r requirements.txt
 Set up your .env file:קטע קודCOHERE_API_KEY=your_cohere_key
