@@ -2,18 +2,25 @@ import os
 from pinecone import Pinecone
 
 def verify_pinecone():
-    """בודק כמה וקטורים יש ב-Pinecone כרגע"""
     print("--- Step 5: Verifying Pinecone storage ---")
     
-    pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
+    # חיבור עם עקיפת SSL עבור נטפרי
+    pc = Pinecone(
+        api_key=os.environ.get("PINECONE_API_KEY"),
+        ssl_verify=False
+    )
+    
     index_name = "code-docs-index"
+    index = pc.Index(index_name)
     
-    pinecone_index = pc.Index(index_name)
-    stats = pinecone_index.describe_index_stats()
+    # בדיקת סטטיסטיקות
+    stats = index.describe_index_stats()
+    total_vectors = stats['total_vector_count']
     
-    count = stats['total_vector_count']
-    print(f"--- Step 5 Check: Total vectors in Pinecone: {count} ---")
-    return count
-
-if __name__ == "__main__":
-    verify_pinecone()
+    print(f"✅ Verification successful!")
+    print(f"📊 Total vectors in index '{index_name}': {total_vectors}")
+    
+    if total_vectors > 0:
+        print("🚀 Data is ready for chatting!")
+    else:
+        print("⚠️ Warning: Index is empty. Something went wrong during upload.")

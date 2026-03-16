@@ -17,6 +17,7 @@ def setup_query_engine(index, llm):
         "If the answer is not in the context, clearly state that you don't know.\n"
         "Always try to mention which file the information came from.\n\n"
         "Context information is below:\n"
+        "always include the source file name in brackets after each piece of information.\n"
         "---------------------\n"
         "{context_str}\n"
         "---------------------\n"

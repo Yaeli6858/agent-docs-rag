@@ -1,0 +1,265 @@
+{
+  "decisions": [
+    {
+      "title": "Controller Design",
+      "summary": "Controllers should be thin and focus on exposing HTTP endpoints. They should delegate business logic to services.",
+      "tags": [
+        "backend",
+        "architecture"
+      ],
+      "source_file": "server/Controllers/"
+    },
+    {
+      "title": "Full-Stack Auction Management System",
+      "summary": "A Chinese Auction/Raffle Management System with Angular frontend and ASP.NET Core backend, featuring roles for Admin, Donor, and Users.",
+      "tags": [
+        "frontend",
+        "backend",
+        "auth"
+      ],
+      "source_file": "README.md"
+    },
+    {
+      "title": "Tech Stack Decision",
+      "summary": "Chosen tech stack: Angular, TypeScript, SCSS for frontend; .NET 8, ASP.NET Core Web API, EF Core with SQL Server, Serilog, Swashbuckle (Swagger) for backend.",
+      "tags": [
+        "tech_stack",
+        "backend"
+      ],
+      "source_file": "README.md"
+    },
+    {
+      "title": "Project Structure Decision",
+      "summary": "Defined project structure with `/client` for Angular and `/server` for ASP.NET Core Web API, including key files and solution definitions.",
+      "tags": [
+        "project_structure",
+        "backend"
+      ],
+      "source_file": "README.md"
+    },
+    {
+      "title": "Repository Design and Data Access",
+      "summary": "Repositories are designed to handle data access and encapsulate Entity Framework Core operations. They should focus on queries and updates, keeping business logic separate.",
+      "tags": [
+        "db",
+        "backend"
+      ],
+      "source_file": "server/Repositories/Implementations"
+    },
+    {
+      "title": "Asynchronous API Usage",
+      "summary": "Use async EF Core APIs like `ToListAsync` and `FirstOrDefaultAsync` for improved performance and responsiveness.",
+      "tags": [
+        "db",
+        "backend"
+      ],
+      "source_file": "server/Repositories/Implementations"
+    },
+    {
+      "title": "Data Mapping and DTOs",
+      "summary": "Repositories should return domain models or EF entities. Mapping to DTOs should be done in the service layer to maintain a clear separation of concerns and simplify testing.",
+      "tags": [
+        "db",
+        "backend"
+      ],
+      "source_file": "server/Repositories/Implementations"
+    },
+    {
+      "title": "Performance Optimization",
+      "summary": "For performance-critical scenarios, consider returning lightweight domain projections (value objects) from the repository and performing mapping in the service layer.",
+      "tags": [
+        "db",
+        "backend"
+      ],
+      "source_file": "server/Repositories/Implementations"
+    },
+    {
+      "title": "Migration Management",
+      "summary": "When adding migrations, ensure you run EF Core commands from the `server/` directory and confirm the `DefaultConnection` setting is correct.",
+      "tags": [
+        "db",
+        "backend"
+      ],
+      "source_file": "server/Repositories/Implementations"
+    },
+    {
+      "title": "Service Design",
+      "summary": "Services should contain business logic and orchestrate various components. They should be unit-testable, small, and single-responsibility.",
+      "tags": [
+        "backend",
+        "service-design"
+      ],
+      "source_file": "server/Services/Implementations"
+    },
+    {
+      "title": "Dependency Injection",
+      "summary": "Use constructor injection for dependencies like repositories and external integrations to keep services testable.",
+      "tags": [
+        "dependency-injection",
+        "testing"
+      ],
+      "source_file": "server/Services/Implementations"
+    },
+    {
+      "title": "Async/Await Usage",
+      "summary": "Utilize async/await for I/O-bound operations and return Task-based signatures for better performance and scalability.",
+      "tags": [
+        "async-await",
+        "performance"
+      ],
+      "source_file": "server/Services/Implementations"
+    },
+    {
+      "title": "Exception Handling",
+      "summary": "Handle exceptions at boundaries and let middleware produce consistent error responses for a unified error handling approach.",
+      "tags": [
+        "exception-handling",
+        "middleware"
+      ],
+      "source_file": "server/Middlewares/ExceptionHandlingMiddleware.cs"
+    },
+    {
+      "title": "Data Mapping",
+      "summary": "Services are responsible for mapping domain models/entities to DTOs. Use AutoMapper profiles or manual mapping, but avoid mapping in repositories.",
+      "tags": [
+        "data-mapping",
+        "domain-models"
+      ],
+      "source_file": "server/Mappings"
+    }
+  ],
+  "rules": [
+    {
+      "rule": "Keep controllers thin and focused on HTTP interactions.",
+      "scope": "Controllers",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Utilize attribute routing and action attributes for HTTP methods.",
+      "scope": "Controllers",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Use model binding and DTOs for request and response handling.",
+      "scope": "Controllers",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Apply authorization attributes for role-based access control.",
+      "scope": "Controllers",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Implement validation using model validation attributes.",
+      "scope": "Controllers",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Use async actions and return Tasks for scalability.",
+      "scope": "Controllers",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Follow existing naming conventions: PascalCase for public types/methods, camelCase for private fields with _ prefix.",
+      "scope": "C# / .NET",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Keep controllers thin, business logic in Services/Repositories.",
+      "scope": "C# / .NET",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Use async/await for I/O-bound operations, return Task-based signatures.",
+      "scope": "C# / .NET",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Use dependency injection, register new services in `Program.cs`.",
+      "scope": "C# / .NET",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Add unit tests for new services/controllers in `SERVER.Tests`.",
+      "scope": "C# / .NET",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Use Angular CLI for generators, preserve existing TypeScript/SCSS styles and module structure.",
+      "scope": "Angular",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Repository methods should focus on data access (queries, updates) and avoid business logic.",
+      "scope": "Repositories",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Use async EF Core APIs for improved performance.",
+      "scope": "Repositories",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Repositories MUST NOT perform mapping to DTOs; mapping should be handled by the service layer.",
+      "scope": "Repositories",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "For performance-optimized data shapes, return lightweight domain projections from the repository and map in the service layer.",
+      "scope": "Repositories",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Keep services unit-testable by injecting dependencies via constructor injection.",
+      "scope": "Services",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Prefer small, single-responsibility services. Extract helper services if methods become large.",
+      "scope": "Services",
+      "severity": "Recommendation"
+    },
+    {
+      "rule": "Use async/await for I/O-bound operations and return Task-based signatures.",
+      "scope": "Services",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Handle exceptions at boundaries and use middleware for consistent error responses.",
+      "scope": "Services",
+      "severity": "Mandatory"
+    },
+    {
+      "rule": "Map domain models/entities to DTOs in services, not in repositories.",
+      "scope": "Services",
+      "severity": "Mandatory"
+    }
+  ],
+  "warnings": [
+    {
+      "area": "Security",
+      "message": "Do not accept user ID or role from client input.",
+      "mitigation": "Extract identity claims from authenticated user and pass to service."
+    },
+    {
+      "area": "Shell Commands",
+      "message": "Do not run UNIX-specific shell commands. Use powershell-compatible commands for local instructions/execution.",
+      "mitigation": "Ensure all shell commands are compatible with Windows PowerShell."
+    },
+    {
+      "area": "SQL Server Configuration",
+      "message": "EF Core is configured for SQL Server. Ensure a reachable SQL Server instance and `DefaultConnection` in `appsettings.json`.",
+      "mitigation": "Confirm SQL Server setup and connection details before running migrations or the server."
+    },
+    {
+      "area": "Secrets and JWT",
+      "message": "App uses user secrets. Avoid reading secrets from external stores in ephemeral environments.",
+      "mitigation": "Mock secrets for local development or use environment variables for sensitive data."
+    },
+    {
+      "area": "Log Management",
+      "message": "Serilog writes to console and `server/Logs/log-.txt`. Avoid deleting logs blindly.",
+      "mitigation": "Implement log rotation or trimming for old entries instead of deleting."
+    }
+  ]
+}
