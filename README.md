@@ -98,6 +98,10 @@ JSON lookup       RAG Workflow
       Final Answer
 ```
 
+## 📊 System Flow Diagram
+
+> [View Interactive Diagram](./workflow_diagram.html)
+
 ---
 
 ## 📊 Full System Flow Diagram
