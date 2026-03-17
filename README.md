@@ -99,7 +99,7 @@ JSON lookup       RAG Workflow
 ```
 
 ## 📊 System Flow Diagram
-
+![System Workflow](./assets/workflow_diagram.png)
 > [View Interactive Diagram](./workflow_diagram.html)
 
 ---
