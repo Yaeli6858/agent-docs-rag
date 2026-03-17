@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG System Workflow</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #fafaf8;
+      --surface:  #ffffff;
+      --border:   #e8e6e0;
+      --text:     #1a1916;
+      --muted:    #8a8880;
+
+      --purple:   #ede9fe;
+      --purple-b: #7c3aed;
+      --purple-t: #4c1d95;
+
+      --teal:     #e0f5f0;
+      --teal-b:   #0d9488;
+      --teal-t:   #134e4a;
+
+      --amber:    #fef3c7;
+      --amber-b:  #d97706;
+      --amber-t:  #78350f;
+
+      --coral:    #fee2e2;
+      --coral-b:  #ef4444;
+      --coral-t:  #7f1d1d;
+
+      --blue:     #eff6ff;
+      --blue-b:   #3b82f6;
+      --blue-t:   #1e3a8a;
+
+      --green:    #f0fdf4;
+      --green-b:  #16a34a;
+      --green-t:  #14532d;
+
+      --gray:     #f4f3f0;
+      --gray-b:   #9ca3af;
+      --gray-t:   #374151;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: var(--gray);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 4px 12px;
+      margin-bottom: 14px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    header p {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 20px;
+      margin-bottom: 10px;
+    }
+
+    /* ── node row ── */
+    .row {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0;
+    }
+
+    .node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      padding: 9px 13px;
+      border: 1.5px solid transparent;
+      text-align: center;
+      flex-shrink: 0;
+      min-width: 104px;
+    }
+    .node .label { font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .node .sub   { font-size: 10px; font-weight: 300; margin-top: 2px; white-space: nowrap; opacity: 0.7; }
+
+    .n-gray   { background: var(--gray);   border-color: var(--gray-b);   color: var(--gray-t);   }
+    .n-purple { background: var(--purple); border-color: var(--purple-b); color: var(--purple-t); }
+    .n-teal   { background: var(--teal);   border-color: var(--teal-b);   color: var(--teal-t);   }
+    .n-amber  { background: var(--amber);  border-color: var(--amber-b);  color: var(--amber-t);  }
+    .n-coral  { background: var(--coral);  border-color: var(--coral-b);  color: var(--coral-t);  }
+    .n-blue   { background: var(--blue);   border-color: var(--blue-b);   color: var(--blue-t);   }
+    .n-green  { background: var(--green);  border-color: var(--green-b);  color: var(--green-t);  }
+
+    .arrow {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 14px;
+      color: var(--muted);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 14px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.07em;
+    }
+
+    .down {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0;
+      color: var(--muted);
+    }
+
+    /* ── split ── */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .split-label {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .workflow-box {
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .wf-node {
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: center;
+      border: 1.5px solid transparent;
+      width: 100%;
+    }
+    .wf-node .label { font-size: 12px; font-weight: 500; }
+    .wf-node .sub   { font-size: 10px; font-weight: 300; margin-top: 1px; opacity: 0.7; }
+
+    .wf-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .fail-node {
+      border-radius: 10px;
+      padding: 6px 8px;
+      text-align: center;
+      border: 1.5px solid var(--coral-b);
+      background: var(--coral);
+      color: var(--coral-t);
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1.3;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .fail-arrow { color: var(--coral-b); font-size: 11px; flex-shrink: 0; }
+
+    /* ── legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 9px; height: 9px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    footer {
+      margin-top: 28px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .arr { width:14px; height:9px; }
+    .arr-d { width:9px; height:14px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">RAG · Event-Driven · Hybrid</div>
+  <h1>Agentic-Docs RAG — System Workflow</h1>
+  <p>LlamaIndex · Cohere · Pinecone · Gradio</p>
+</header>
+
+<div class="card">
+
+  <!-- ══ DATA INGESTION ══ -->
+  <div class="section">
+    <div class="section-label">Phase A — Semantic pipeline (run once)</div>
+    <div class="row">
+      <div class="node n-gray">
+        <span class="label">.md files</span>
+        <span class="sub">Cursor / GitHub</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-purple">
+        <span class="label">1. Load</span>
+        <span class="sub">SimpleDirectoryReader</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-purple">
+        <span class="label">2. Chunk</span>
+        <span class="sub">SentenceSplitter</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-purple">
+        <span class="label">3. Embed</span>
+        <span class="sub">Cohere multilingual</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-teal">
+        <span class="label">4–5. Store</span>
+        <span class="sub">Pinecone vector DB</span>
+      </div>
+    </div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">Phase C — Structured extraction</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="row">
+      <div class="node n-gray">
+        <span class="label">.md files</span>
+        <span class="sub">All agent docs</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-coral">
+        <span class="label">Extractor engine</span>
+        <span class="sub">LLM + Pydantic</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-coral">
+        <span class="label">Batch processor</span>
+        <span class="sub">All files</span>
+      </div>
+      <div class="arrow">
+        <svg class="arr" viewBox="0 0 14 9" fill="none"><path d="M0 4.5h11M7.5 1l3 3.5-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="node n-amber">
+        <span class="label">knowledge.json</span>
+        <span class="sub">decisions · rules · warnings</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUERY ENGINE ══ -->
+  <div class="section">
+    <div class="section-label">Phase B — Query engine (every question)</div>
+
+    <div style="display:flex; justify-content:center;">
+      <div class="node n-gray" style="min-width:160px;">
+        <span class="label">User query</span>
+        <span class="sub">Gradio chat UI</span>
+      </div>
+    </div>
+
+    <div class="down">
+      <svg class="arr-d" viewBox="0 0 9 14" fill="none"><path d="M4.5 0v11M1 7.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div style="display:flex; justify-content:center;">
+      <div class="node n-blue" style="min-width:190px;">
+        <span class="label">Smart Router</span>
+        <span class="sub">LLM classifies intent</span>
+      </div>
+    </div>
+
+    <div class="down">
+      <svg class="arr-d" viewBox="0 0 9 14" fill="none"><path d="M4.5 0v11M1 7.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="split">
+
+      <div>
+        <div class="split-label">"structured" path</div>
+        <div class="workflow-box" style="display:flex; justify-content:center;">
+          <div class="wf-node n-amber" style="text-align:center;">
+            <div class="label">JSON lookup</div>
+            <div class="sub">knowledge.json</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="split-label">"semantic" path</div>
+        <div class="workflow-box">
+
+          <div class="wf-row">
+            <div class="wf-node n-teal">
+              <div class="label">Step 1: Retrieve</div>
+              <div class="sub">Top-3 from Pinecone</div>
+            </div>
+          </div>
+
+          <div class="down" style="margin:5px 0;">
+            <svg class="arr-d" viewBox="0 0 9 14" fill="none"><path d="M4.5 0v11M1 7.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="wf-row">
+            <div class="wf-node n-teal">
+              <div class="label">Step 2: Validate</div>
+              <div class="sub">score ≥ 0.35?</div>
+            </div>
+            <span class="fail-arrow">→</span>
+            <div class="fail-node">Stop<br>"not found"</div>
+          </div>
+
+          <div class="down" style="margin:5px 0;">
+            <svg class="arr-d" viewBox="0 0 9 14" fill="none"><path d="M4.5 0v11M1 7.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="wf-row">
+            <div class="wf-node n-teal">
+              <div class="label">Step 3: Generate</div>
+              <div class="sub">Cohere LLM → answer</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="down" style="margin-top:14px;">
+      <svg class="arr-d" viewBox="0 0 9 14" fill="none"><path d="M4.5 0v11M1 7.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div style="display:flex; justify-content:center;">
+      <div class="node n-green" style="min-width:190px;">
+        <span class="label">Final answer</span>
+        <span class="sub">Displayed in Gradio UI</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ LEGEND ══ -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Pipeline steps</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0d9488"></div>RAG Workflow</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Extraction engine</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Structured JSON</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Smart Router</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Final answer</div>
+  </div>
+
+</div>
+
+<footer>github.com/Yaeli6858/agent-docs-rag</footer>
+
+</body>
+</html>
